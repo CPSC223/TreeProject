@@ -9,7 +9,6 @@
 using namespace std;
 
 struct Node {
-    
     int treeCount;
     string blockName;
     Node* last;
@@ -20,6 +19,8 @@ class streetLinkedList {
 public:
     Node* Head;
     Node* Base;
+    string streetName;
+
 private:
 
 };
