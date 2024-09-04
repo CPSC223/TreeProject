@@ -21,6 +21,16 @@ public:
     Node* Base;
     string streetName;
 
+
+    //constructor
+    streetLinkedList();
+    //deconstructor
+    ~streetLinkedList();
+
+    streetLinkedList* CreateNewNode(string blockName, int treeCount);
+
 private:
+
+
 
 };
