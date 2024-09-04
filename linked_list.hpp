@@ -9,7 +9,9 @@
 using namespace std;
 
 struct Node {
-    vector<int> treeCount;
+    
+    int treeCount;
+    string blockName;
     Node* last;
     Node* next;
 };
