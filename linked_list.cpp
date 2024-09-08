@@ -8,45 +8,100 @@
 using namespace std;
 
 
-void parseFile(const string& fileName, vector<streetList>& streetLinkedLists){
+void parseFile(const string& fileName, vector<streetList>& streetLinkedLists) {
+    cout << "HELLO" << endl;
     ifstream file(fileName);
-    string line, blockData;
-    if(!file.is_open()) {
-        cout << "File was unable to open" << endl;
+    string line;
+    cout << "1" << endl;
+    if (!file.is_open()) {
+        cerr << "File " << fileName << " was unable to open" << endl;
         return;
     }
+    cout << "2" << endl;
+while (getline(file, line)) {
+    stringstream ss(line);
+    string streetName, blockData;
 
-    while (getline(file, line)) {
-        int blockCounter = 1;
-        stringstream ss(line);
+    // Read street name
+    getline(ss, streetName, ',');
 
-        string streetName;
-        getline(ss, streetName, ',');
+    // Create new street list for the street name
+    streetList newStreetList(streetName);
+    int blockCounter = 1; // Move blockCounter initialization here
 
-        streetList newStreetList(streetName);
-        while(getline(ss,blockData, ',')){
-            int treeCount = stoi(blockData);
+    // Process each block data
+    while (getline(ss, blockData, ',')) {
+        Node newNode;
+        newNode.blockNum = blockCounter;
+        newNode.treeCount = blockData; // Directly use blockData
+        newNode.last = nullptr;
+        newNode.next = nullptr;
 
-            Node newNode;
-            newNode.blockNum = blockCounter;
-            newNode.treeCount = treeCount;
-            newNode.last = nullptr;
-            newNode.next = nullptr;
-
-            // Append node to the current street list
-            newStreetList.append(newNode);
-            blockCounter++;
-        }
-        streetLinkedLists.push_back(newStreetList);
+        // Append node to the current street list
+        newStreetList.append(newNode);
+        blockCounter++;
     }
+
+    // Add the street list to the vector
+    streetLinkedLists.push_back(newStreetList);
+}
+    cout << "8" << endl;
+
     file.close();
-    return;
+    cout << "9" << endl;
+
 }
 
+void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
+    string streetChoice;
+    bool validChoice = false;
 
+    // List of valid streets
+    vector<string> validStreets = {"Indiana", "Nora", "Augusta", "Mission", "Sinto", "Sharp"};
+
+    cout << "Please Select A Street to View!" << endl;
+    cout << "[Indiana] [Nora] [Augusta] [Mission] [Sinto] [Sharp]" << endl;
+
+    while (!validChoice) {
+        cin >> streetChoice;
+
+        for (const string& street : validStreets) { //iterate through vector
+            if (street == streetChoice) {
+                validChoice = true; 
+                break;
+            }
+        }
+
+        if (!validChoice) {
+            cout << "Invalid street name. Please try again: " << endl;
+        }
+    }
+    streetName = streetChoice;
+}
+
+void navigateStreet(vector<streetList>& streetLinkedLists, string& streetName) {
+    for (int i = 0; i < streetLinkedLists.size(); i++) {
+        if (streetLinkedLists[i].streetName == streetName)
+        {
+            cout << "Street Found: " << streetName;
+        }
+    }
+    cout << "oh no" << endl;
+    
+}
 
 //LinkedList Functions
-streetList::streetList(string street) {
+
+
+void streetList::printList() const {
+    Node* currentNode = Head;
+    while (currentNode != nullptr)
+    {
+        cout << "Block " << currentNode->blockNum << " contains " << currentNode->treeCount << " trees!" << endl;
+        currentNode = currentNode ->next;
+    }
+}
+streetList::streetList(const string& street) {
     Head = nullptr;
     Tail = nullptr;
     streetName = street;
@@ -61,7 +116,7 @@ streetList::~streetList() {
     }
 }
 
-void streetList::append(Node& newNode){
+void streetList::append(const Node& newNode){
      Node* newNodePtr = new Node();  // Create a new empty node
 
     // Assign values from newNode
