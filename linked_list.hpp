@@ -15,22 +15,24 @@ struct Node {
     Node* next;
 };
 
-class streetLinkedList {
+class streetList {
 public:
     Node* Head;
-    Node* Base;
+    Node* Tail;
     string streetName;
 
+    streetList(string street);
 
-    //constructor
-    streetLinkedList();
-    //deconstructor
-    ~streetLinkedList();
+    ~streetList();
 
-    streetLinkedList* CreateNewNode(string blockName, int treeCount);
-
-private:
-
+    streetList* CreateNewNode(string blockName, int treeCount);
+    void append(Node& newNode);
+    void printList() const;
+    void insertNode(Node& newNode, int position);
+    void deleteNode(string street);
+    void printSize(Node& newNode);
+    Node* searchNode(string) const;
+    
 
 
 };
