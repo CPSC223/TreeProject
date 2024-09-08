@@ -1,0 +1,7 @@
+Street Name, Block 1, Block 2, Block 3, Block 4, Block 5, Block 6
+E Indiana Ave, 10, 10, 14, 17, 17, 9
+E Nora Ave, 10, 10, 16, 17, 25, 14
+E Augusta Ave, 15, 16, 19, 22, 16
+E Mission Ave, 15, 14, 19, 15, 21, 29
+E Sinto Ave, 9, 14, 23, 16, 22, 19
+E Sharp Ave 18, 19, 12, 20, 24, 20
