@@ -14,6 +14,10 @@ struct Node {
     int blockNum;
     Node* last;
     Node* next;
+    Node() : treeCount(""), blockNum(0), last(nullptr), next(nullptr) {}
+    Node(const string& count, int num, Node* prev = nullptr, Node* following = nullptr)
+        : treeCount(count), blockNum(num), last(prev), next(following) {}
+
 };
 
 class streetList {
@@ -26,7 +30,7 @@ public:
     ~streetList();
 
     streetList* CreateNewNode(string blockName, int treeCount);
-    void append(const Node& newNode);
+    void append(Node& newNode);
     void printList() const;
     void insertNode(Node& newNode, int position);
     void deleteNode(int blockNum);

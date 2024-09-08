@@ -7,50 +7,42 @@
 
 using namespace std;
 
-
 void parseFile(const string& fileName, vector<streetList>& streetLinkedLists) {
-    cout << "HELLO" << endl;
     ifstream file(fileName);
     string line;
-    cout << "1" << endl;
     if (!file.is_open()) {
         cerr << "File " << fileName << " was unable to open" << endl;
         return;
     }
-    cout << "2" << endl;
-while (getline(file, line)) {
-    stringstream ss(line);
-    string streetName, blockData;
+    while (getline(file, line))
+    {
+        istringstream dataToParse(line);
+        string treePerBlock, streetName;
+        if(line.empty()){
+            break;
+        }
+        getline(dataToParse, streetName, ',');
+        streetList newStreetList(streetName);
+        int blockNum = 1;
+        while(getline(dataToParse, treePerBlock, ','))
+        {
+            Node newNode;
+            newNode.blockNum = blockNum;
+            newNode.treeCount = treePerBlock;
+            newNode.last = nullptr;
+            newNode.next = nullptr;
 
-    // Read street name
-    getline(ss, streetName, ',');
+            newStreetList.append(newNode);
+            blockNum++;
 
-    // Create new street list for the street name
-    streetList newStreetList(streetName);
-    int blockCounter = 1; // Move blockCounter initialization here
+        }
+        streetLinkedLists.push_back(newStreetList);
 
-    // Process each block data
-    while (getline(ss, blockData, ',')) {
-        Node newNode;
-        newNode.blockNum = blockCounter;
-        newNode.treeCount = blockData; // Directly use blockData
-        newNode.last = nullptr;
-        newNode.next = nullptr;
-
-        // Append node to the current street list
-        newStreetList.append(newNode);
-        blockCounter++;
     }
-
-    // Add the street list to the vector
-    streetLinkedLists.push_back(newStreetList);
-}
-    cout << "8" << endl;
-
     file.close();
-    cout << "9" << endl;
-
+    return;
 }
+
 
 void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
     string streetChoice;
@@ -116,18 +108,11 @@ streetList::~streetList() {
     }
 }
 
-void streetList::append(const Node& newNode){
-     Node* newNodePtr = new Node();  // Create a new empty node
-
-    // Assign values from newNode
-    newNodePtr->blockNum = newNode.blockNum;
-    newNodePtr->treeCount = newNode.treeCount;
-    newNodePtr->last = nullptr;
-    newNodePtr->next = nullptr;
+void streetList::append(Node& newNode) {
+    Node* newNodePtr = new Node(newNode);  
 
     if (Head == nullptr) {
-        Head = newNodePtr;
-        Tail = newNodePtr;
+        Head = Tail = newNodePtr;
     } else {
         Tail->next = newNodePtr;
         newNodePtr->last = Tail;
