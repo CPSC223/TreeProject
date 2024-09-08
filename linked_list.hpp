@@ -10,7 +10,7 @@ using namespace std;
 
 struct Node {
     int treeCount;
-    string blockName;
+    int blockNum;
     Node* last;
     Node* next;
 };
@@ -29,9 +29,9 @@ public:
     void append(Node& newNode);
     void printList() const;
     void insertNode(Node& newNode, int position);
-    void deleteNode(string street);
+    void deleteNode(int blockNum);
     void printSize(Node& newNode);
-    Node* searchNode(string) const;
+    Node* searchNode(int blockNum) const;
     
 
 

@@ -1,11 +1,51 @@
 #include "linked_list.hpp"
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <fstream>
 #include <vector>
 
 using namespace std;
 
 
+void parseFile(const string& fileName, vector<streetList>& streetLinkedLists){
+    ifstream file(fileName);
+    string line, blockData;
+    if(!file.is_open()) {
+        cout << "File was unable to open" << endl;
+        return;
+    }
+
+    while (getline(file, line)) {
+        int blockCounter = 1;
+        stringstream ss(line);
+
+        string streetName;
+        getline(ss, streetName, ',');
+
+        streetList newStreetList(streetName);
+        while(getline(ss,blockData, ',')){
+            int treeCount = stoi(blockData);
+
+            Node newNode;
+            newNode.blockNum = blockCounter;
+            newNode.treeCount = treeCount;
+            newNode.last = nullptr;
+            newNode.next = nullptr;
+
+            // Append node to the current street list
+            newStreetList.append(newNode);
+            blockCounter++;
+        }
+        streetLinkedLists.push_back(newStreetList);
+    }
+    file.close();
+    return;
+}
+
+
+
+//LinkedList Functions
 streetList::streetList(string street) {
     Head = nullptr;
     Tail = nullptr;
@@ -22,51 +62,63 @@ streetList::~streetList() {
 }
 
 void streetList::append(Node& newNode){
-    Node* newNodePtr = new Node(newNode);
-    
-    if (Head == nullptr){
+     Node* newNodePtr = new Node();  // Create a new empty node
+
+    // Assign values from newNode
+    newNodePtr->blockNum = newNode.blockNum;
+    newNodePtr->treeCount = newNode.treeCount;
+    newNodePtr->last = nullptr;
+    newNodePtr->next = nullptr;
+
+    if (Head == nullptr) {
         Head = newNodePtr;
         Tail = newNodePtr;
-    } else {  
-        Tail->next = newNodePtr;  // Link current Tail to the new node
-        newNodePtr->last = Tail;  // Link new node's 'last' to the current Tail
-        Tail = newNodePtr;  // Update Tail to the new node
+    } else {
+        Tail->next = newNodePtr;
+        newNodePtr->last = Tail;
+        Tail = newNodePtr;
     }
-    newNodePtr->next = nullptr; 
-    
 }
 
-void streetList::deleteNode(string blockName){
+void streetList::deleteNode(int blockNum){
     Node* currentNode = Head;
     
     while (currentNode != nullptr) {
-        if (currentNode->blockName == blockName) {  // Find the block with the specified name
+        if (currentNode->blockNum == blockNum) {  // Find the block with the specified name
             if (currentNode == Head) {  // If the node to be deleted is the Head
                 Head = currentNode->next;
                 if (Head != nullptr) {
-                    Head->last = nullptr;  // Update the previous pointer of the new Head
+                    Head->last = nullptr; 
                 }
-            } else if (currentNode == Tail) {  // If the node to be deleted is the Tail
+
+            } else if (currentNode == Tail) {  
                 Tail = currentNode->last;
                 if (Tail != nullptr) {
-                    Tail->next = nullptr;  // Update the next pointer of the new Tail
+                    Tail->next = nullptr;  
                 }
-            } else {  // If the node is somewhere in the middle
+
+            } else { 
                 currentNode->last->next = currentNode->next;
                 currentNode->next->last = currentNode->last;
             }
-            delete currentNode;  // Free the memory
+            delete currentNode;
             return;
         }
-        currentNode = currentNode->next;  // Move to the next node
+        currentNode = currentNode->next;  
     }
     
-    cout << "Block " << blockName << " not found!" << endl;
+    cout << "Block " << blockNum << " not found" << endl;
 }
 
 void streetList::insertNode(Node& newNode, int position) {
-    Node* newNodePtr = new Node(newNode);
-    if (position == 0) {  // Insert at the beginning
+
+    Node* newNodePtr = new Node();
+    newNodePtr->blockNum = newNode.blockNum;
+    newNodePtr->treeCount = newNode.treeCount;
+    newNodePtr->next = nullptr;
+    newNodePtr->last = nullptr;
+
+    if (position == 0) {  
         newNodePtr->next = Head;
         if (Head != nullptr) {
             Head->last = newNodePtr;
@@ -88,7 +140,7 @@ void streetList::insertNode(Node& newNode, int position) {
     
     if (currentNode == nullptr) {  // If position is out of bounds, append at the end
         append(*newNodePtr);
-    } else {  // Insert the node at the specified position
+    } else { 
         newNodePtr->next = currentNode->next;
         newNodePtr->last = currentNode;
         
@@ -103,14 +155,14 @@ void streetList::insertNode(Node& newNode, int position) {
 }
 
 void streetList::printSize(Node& newNode) {
-    cout << "The block " << newNode.blockName << " has " << newNode.treeCount << " trees." << endl;
+    cout << "Block " << newNode.blockNum << " has " << newNode.treeCount << " trees." << endl;
 }
 
-Node* streetList::searchNode(string blockName) const {
+Node* streetList::searchNode(int blockNum) const {
     Node* current = Head;
 
     while (current != nullptr) {
-        if (current->blockName == blockName) {
+        if (current->blockNum == blockNum) {
             return current;
         }
         current = current->next; 
