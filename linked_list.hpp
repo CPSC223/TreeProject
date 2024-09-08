@@ -33,8 +33,6 @@ public:
     void printSize(Node& newNode);
     Node* searchNode(string) const;
     
-private:
-
 
 
 };

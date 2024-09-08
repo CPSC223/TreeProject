@@ -113,7 +113,7 @@ Node* streetList::searchNode(string blockName) const {
         if (current->blockName == blockName) {
             return current;
         }
-        current = current->next;
+        current = current->next; 
     }
 
     cout << "Node not found.\n";
