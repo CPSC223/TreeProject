@@ -19,6 +19,24 @@ houses the definitions for all functions
 
 using namespace std;
 
+
+void printAllStreets(const vector<streetList>& streetLinkedLists) {
+    for (const auto& street : streetLinkedLists) {
+        cout << "Street: " << street.streetName << endl;
+        
+        Node* currentBlock = street.Head;
+        int blockIndex = 1;
+
+        // Traverse the linked list and print the tree count for each block
+        while (currentBlock != nullptr) {
+            cout << "  Block " << blockIndex << ": " << currentBlock->treeCount << " trees" << endl;
+            currentBlock = currentBlock->next;
+            blockIndex++;
+        }
+        cout << endl; 
+    }
+}
+
 string trim(const string& str) {
     // Create a copy of the string to modify
     string trimmed = str;
@@ -74,28 +92,32 @@ void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
 
     vector<string> validStreets = {"Indiana", "Nora", "Augusta", "Mission", "Sinto", "Sharp"};
 
-    cout << "Please Select A Street to View! (or type 'exit' to quit)" << endl;
-    cout << "[Indiana] [Nora] [Augusta] [Mission] [Sinto] [Sharp]" << endl;
-
     while (!validChoice) {
+        // Print the selection menu
+        cout << "Please Select A Street to View!" << endl;
+        cout << "[Indiana] [Nora] [Augusta] [Mission] [Sinto] [Sharp]" << endl;
+        cout << "Type 'print' to see all streets and blocks, or 'exit' to quit." << endl;
+
         cin >> streetChoice;
 
-        // Allow the user to exit by typing 'exit'
         if (streetChoice == "exit") {
-            streetName = "exit"; // Set special value to indicate exit
+            streetName = "exit";
             return;
+        } 
+        else if (streetChoice == "print") {
+            printAllStreets(streetLinkedLists); // Call function to print all streets
+            continue; 
         }
 
-        // Check if the entered street name is valid
         for (const string& street : validStreets) {
             if (street == streetChoice) {
-                validChoice = true;
+                validChoice = true; 
                 break;
             }
         }
 
         if (!validChoice) {
-            cout << "Invalid street name. Please try again: " << endl;
+            cout << "Invalid street name. Please try again." << endl;
         }
     }
 
@@ -235,10 +257,8 @@ streetList::~streetList() {
 void streetList::append(Node& nodeNew) {
     Node* newNode = new Node(nodeNew);
     if (Head == nullptr) {
-        cout << "List is empty, adding the first node (Block " << newNode->blockNum << ")" << endl;
         Head = Tail = newNode;
     } else {
-        cout << "Appending node for Block " << newNode->blockNum << " after Block " << Tail->blockNum << endl;
         Tail->next = newNode;  // Link current Tail to the new node
         newNode->last = Tail;  // Set the new node's last pointer to the current Tail
         Tail = newNode;        // Update the Tail to be the new node

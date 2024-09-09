@@ -20,16 +20,16 @@ int main() {
     string fileName = "StreetsAndTrees.csv";
     vector<streetList> streetLinkedLists;
 
-    // Parse the file to load street data
+    // Load the street data from the file
     parseFile(fileName, streetLinkedLists);
 
     bool keepRunning = true;
-    
+
     while (keepRunning) {
-        // Allow the user to select a street
+        // Prompt the user to select a street
         selectStreet(streetLinkedLists, streetName);
 
-        // Check if the user typed "exit" in selectStreet
+        // If the user chooses 'exit', break the loop
         if (streetName == "exit") {
             keepRunning = false;
             break;
@@ -38,10 +38,10 @@ int main() {
         // Navigate the selected street
         navigateStreet(streetLinkedLists, streetName);
 
-        // After navigation, ask the user if they want to switch streets or quit
+        // After navigation, ask if the user wants to view another street
         string response;
         bool validResponse = false;
-        
+
         while (!validResponse) {
             cout << "Would you like to view another street? (yes/no)" << endl;
             cin >> response;
@@ -53,7 +53,7 @@ int main() {
                 validResponse = true;
             } else if (response == "no") {
                 validResponse = true;
-                keepRunning = false; // Exit the loop if they say "no"
+                keepRunning = false;
             } else {
                 cout << "Please enter a valid option: 'yes' or 'no'." << endl;
             }
