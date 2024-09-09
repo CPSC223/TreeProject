@@ -1,3 +1,12 @@
+/*
+Name: Group 13
+Class: CPSC223, Fall 2024
+Date: September 8, 2024
+Programming Assignment: Project 1
+Description: This is the function implementation file that
+houses the definitions for all functions
+*/
+
 #include "linked_list.hpp"
 #include <iostream>
 #include <string>
@@ -5,21 +14,9 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-#include <cctype>
 #include <locale>
 
 using namespace std;
-
-string cleanInput(const string& input) {
-    std::string result;
-    for (char c : input) {
-        // Remove carriage returns and any other undesired characters
-        if (c != '\r') {
-            result += c;
-        }
-    }
-    return result;
-}
 
 string trim(const string& str) {
     // Create a copy of the string to modify
@@ -137,14 +134,88 @@ void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
 }
 
 void navigateStreet(vector<streetList>& streetLinkedLists, string& streetName) {
+    // Search for the street by name
+    int streetNum = -1;
     for (int i = 0; i < streetLinkedLists.size(); i++) {
         if (streetLinkedLists[i].streetName == streetName) {
             cout << "Street Found: " << streetName << endl;
-            return;
+            streetNum = i;
+            break;
         }
     }
-    cout << "Street not found!" << endl;
+    
+    // If street not found, return
+    if (streetNum == -1) {
+        cout << "Street not found." << endl;
+        return;
+    }
+
+    streetList& selectedStreet = streetLinkedLists[streetNum];
+    Node* currentBlock = selectedStreet.Head;
+    int blockIndex = 1; // Start at the first block
+    bool keepWalking = true;
+
+    // Start the block navigation loop
+    while (keepWalking) {
+        cout << "You are on block " << blockIndex << " of " << selectedStreet.streetName << endl;
+        cout << "Trees on this block: " << currentBlock->treeCount << endl;
+
+        int direction = -1; // Reset direction
+        
+        // Offer options based on the block position
+        if (currentBlock->last == nullptr && currentBlock->next == nullptr) {
+            // Single block street
+            cout << "No more blocks to navigate. Exiting..." << endl;
+            break;
+        }
+        else if (currentBlock->last == nullptr) {
+            // First block, only option is to move forward or exit
+            cout << "Would you like to move forward (1) or exit (0)?" << endl;
+            while (direction != 1 && direction != 0) {
+                cin >> direction;
+                if (direction != 1 && direction != 0) {
+                    cout << "Please enter a valid option: Forward (1) or Exit (0)." << endl;
+                }
+            }
+        } 
+        else if (currentBlock->next == nullptr) {
+            // Last block, only option is to move backward or exit
+            cout << "Would you like to move backward (2) or exit (0)?" << endl;
+            while (direction != 2 && direction != 0) {
+                cin >> direction;
+                if (direction != 2 && direction != 0) {
+                    cout << "Please enter a valid option: Backward (2) or Exit (0)." << endl;
+                }
+            }
+        }
+        else {
+            // Middle blocks, option to move forward, backward, or exit
+            cout << "Would you like to move forward (1), backward (2), or exit (0)?" << endl;
+            while (direction != 1 && direction != 2 && direction != 0) {
+                cin >> direction;
+                if (direction != 1 && direction != 2 && direction != 0) {
+                    cout << "Please enter a valid option: Forward (1), Backward (2), or Exit (0)." << endl;
+                }
+            }
+        }
+
+        // Handle movement based on user input
+        if (direction == 1 && currentBlock->next != nullptr) {
+            currentBlock = currentBlock->next;
+            blockIndex++;
+        } 
+        else if (direction == 2 && currentBlock->last != nullptr) {
+            currentBlock = currentBlock->last;
+            blockIndex--;
+        } 
+        else if (direction == 0) {
+            keepWalking = false;
+        }
+    }
+
+    cout << "You have exited the street." << endl;
 }
+
 
 streetList::streetList(const string& street) {
     Head = nullptr;

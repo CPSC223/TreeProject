@@ -1,3 +1,12 @@
+/*
+Name: Group 13
+Class: CPSC223, Fall 2024
+Date: September 8, 2024
+Programming Assignment: Project 1
+Description: This is the header file that defines the linked list class and node struct
+as well as houses the signatures for standard functions
+*/
+
 #ifndef LINKED_LIST_HPP
 #define LINKED_LIST_HPP
 #endif
@@ -43,5 +52,4 @@ public:
 void parseFile(const string& fileName, vector<streetList>& streetLinkedLists);
 void selectStreet(vector<streetList>& streetLinkedLists, string& streetName);
 void navigateStreet(vector<streetList>& streetLinkedLists, string& streetName);
-string cleanInput(const string& input);
-string trim(const string& str);
+
