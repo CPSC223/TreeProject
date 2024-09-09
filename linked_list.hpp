@@ -23,17 +23,25 @@ public:
     string streetName;
     Node* Head;
     Node* Tail;
+
     streetList(const string& name);
     ~streetList();
-    void append(Node* newNode);
+
+    streetList(const streetList& other);
+    streetList& operator=(const streetList& other);
+
+    void append(Node& newNode);
     void printList() const;
-    void insertNode(Node* newNode, int position);
+    void insertNode(Node& newNode, int position);
     void deleteNode(int blockNum);
     void printSize(Node* newNode);
+    int findSize() const;
+    void initializeFromLine(const string& line);
     Node* searchNode(int blockNum) const;
 };
 
 void parseFile(const string& fileName, vector<streetList>& streetLinkedLists);
 void selectStreet(vector<streetList>& streetLinkedLists, string& streetName);
 void navigateStreet(vector<streetList>& streetLinkedLists, string& streetName);
-
+string cleanInput(const string& input);
+string trim(const string& str);

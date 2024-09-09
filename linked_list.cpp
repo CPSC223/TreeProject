@@ -10,7 +10,7 @@
 
 using namespace std;
 
-std::string cleanInput(const std::string& input) {
+string cleanInput(const string& input) {
     std::string result;
     for (char c : input) {
         // Remove carriage returns and any other undesired characters
@@ -21,18 +21,18 @@ std::string cleanInput(const std::string& input) {
     return result;
 }
 
-std::string trim(const std::string& str) {
+string trim(const string& str) {
     // Create a copy of the string to modify
-    std::string trimmed = str;
+    string trimmed = str;
 
     // Remove leading whitespace
-    trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
+    trimmed.erase(trimmed.begin(), find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch) {
+        return !isspace(ch);
     }));
 
     // Remove trailing whitespace
-    trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
+    trimmed.erase(find_if(trimmed.rbegin(), trimmed.rend(), [](unsigned char ch) {
+        return !isspace(ch);
     }).base(), trimmed.end());
 
     return trimmed;
@@ -47,43 +47,67 @@ void parseFile(const string& fileName, vector<streetList>& streetLinkedLists) {
         return;
     }
 
-    while (getline(file, line)) {
-        line = cleanInput(line);  // Remove hidden characters like '\r'
-        cout << "File stream state after getline: " << file.good() << " Line: [" << line << "]" << endl;
-
-        if (line.empty()) {
-            continue;  // Skip empty lines
-        }
-
-        cout << "Line length after clean: " << line.length() << " Content: [" << line << "]" << endl;
-
+    while(getline(file,line))
+    {
         istringstream dataToParse(line);
         string streetName, treePerBlock;
 
         getline(dataToParse, streetName, ',');
         streetName = trim(streetName);  // Remove leading/trailing whitespace
-        cout << "Parsing street: [" << streetName << "]" << endl;
 
         streetList newStreetList(streetName);
         int blockNum = 1;
-
         while (getline(dataToParse, treePerBlock, ',')) {
             treePerBlock = trim(treePerBlock);
-            cout << "Block " << blockNum << " has " << treePerBlock << " trees." << endl;
-
-            Node* newNode = new Node(treePerBlock, blockNum);
+            Node newNode(treePerBlock, blockNum);
             newStreetList.append(newNode);  // Append the node
             blockNum++;
         }
-
         streetLinkedLists.push_back(newStreetList);  // Add the streetList to the vector
-        cout << "Finished parsing street: " << streetName << endl;
     }
-
     file.close();
     cout << "Finished reading file" << endl;
 }
 
+streetList::streetList(const streetList& other)
+    : Head(nullptr), Tail(nullptr), streetName(other.streetName) {
+    Node* current = other.Head;
+    while (current != nullptr) {
+        Node* newNode = new Node(*current);
+        this->append(*newNode);
+        current = current->next;
+    }
+}
+
+// Copy Assignment Operator
+streetList& streetList::operator=(const streetList& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    // Clear the existing list
+    Node* current = Head;
+    while (current != nullptr) {
+        Node* nextNode = current->next;
+        delete current;
+        current = nextNode;
+    }
+    Head = nullptr;
+    Tail = nullptr;
+
+    // Copy the streetName attribute
+    streetName = other.streetName;
+
+    // Copy the list
+    current = other.Head;
+    while (current != nullptr) {
+        Node* newNode = new Node(*current);
+        this->append(*newNode);
+        current = current->next;
+    }
+    
+    return *this;
+}
 
 void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
     string streetChoice;
@@ -137,7 +161,8 @@ streetList::~streetList() {
     }
 }
 
-void streetList::append(Node* newNode) {
+void streetList::append(Node& nodeNew) {
+    Node* newNode = new Node(nodeNew);
     if (Head == nullptr) {
         cout << "List is empty, adding the first node (Block " << newNode->blockNum << ")" << endl;
         Head = Tail = newNode;
@@ -157,38 +182,51 @@ void streetList::printList() const {
     }
 }
 
-void streetList::insertNode(Node* newNode, int position) {
-    if (position == 0) {
-        newNode->next = Head;
+int streetList::findSize() const {
+    int size = 0;
+    Node* current = Head;
+    while (current != nullptr) {
+        size++;
+        current = current->next;
+    }
+    return size;
+}
+
+void streetList::insertNode(Node& newNode, int position) {
+    Node* newNodePtr = new Node(newNode);
+    if (position == 0) {  // Insert at the beginning
+        newNodePtr->next = Head;
         if (Head != nullptr) {
-            Head->last = newNode;
+            Head->last = newNodePtr;
         }
-        Head = newNode;
-        if (Tail == nullptr) {
+        Head = newNodePtr;
+        if (Tail == nullptr) {  // If the list was empty, update the Tail
             Tail = Head;
         }
         return;
     }
-
+    
     Node* currentNode = Head;
     int currentPosition = 0;
-
+    
     while (currentNode != nullptr && currentPosition < position - 1) {
         currentNode = currentNode->next;
         currentPosition++;
     }
-
-    if (currentNode == nullptr) {
-        append(newNode);
-    } else {
-        newNode->next = currentNode->next;
-        newNode->last = currentNode;
+    
+    if (currentNode == nullptr) {  // If position is out of bounds, append at the end
+        append(*newNodePtr);
+    } else {  // Insert the node at the specified position
+        newNodePtr->next = currentNode->next;
+        newNodePtr->last = currentNode;
+        
         if (currentNode->next != nullptr) {
-            currentNode->next->last = newNode;
-        } else {
-            Tail = newNode;
+            currentNode->next->last = newNodePtr;
+        } else {  // If inserting at the end
+            Tail = newNodePtr;
         }
-        currentNode->next = newNode;
+        
+        currentNode->next = newNodePtr;
     }
 }
 
