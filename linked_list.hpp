@@ -36,7 +36,15 @@ public:
     streetList(const string& name);
     ~streetList();
 
-    streetList(const streetList& other);
+    streetList(const streetList& other)
+    : Head(nullptr), Tail(nullptr), streetName(other.streetName) {
+    Node* current = other.Head;
+    while (current != nullptr) {
+        Node* newNode = new Node(*current);
+        this->append(*newNode);
+        current = current->next;
+    }
+    }
     streetList& operator=(const streetList& other);
 
     void append(Node& newNode);

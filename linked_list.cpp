@@ -14,6 +14,7 @@ houses the definitions for all functions
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cctype>
 #include <locale>
 
 using namespace std;
@@ -66,45 +67,6 @@ void parseFile(const string& fileName, vector<streetList>& streetLinkedLists) {
     cout << "Finished reading file" << endl;
 }
 
-streetList::streetList(const streetList& other)
-    : Head(nullptr), Tail(nullptr), streetName(other.streetName) {
-    Node* current = other.Head;
-    while (current != nullptr) {
-        Node* newNode = new Node(*current);
-        this->append(*newNode);
-        current = current->next;
-    }
-}
-
-// Copy Assignment Operator
-streetList& streetList::operator=(const streetList& other) {
-    if (this == &other) {
-        return *this;
-    }
-
-    // Clear the existing list
-    Node* current = Head;
-    while (current != nullptr) {
-        Node* nextNode = current->next;
-        delete current;
-        current = nextNode;
-    }
-    Head = nullptr;
-    Tail = nullptr;
-
-    // Copy the streetName attribute
-    streetName = other.streetName;
-
-    // Copy the list
-    current = other.Head;
-    while (current != nullptr) {
-        Node* newNode = new Node(*current);
-        this->append(*newNode);
-        current = current->next;
-    }
-    
-    return *this;
-}
 
 void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
     string streetChoice;
@@ -112,15 +74,22 @@ void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
 
     vector<string> validStreets = {"Indiana", "Nora", "Augusta", "Mission", "Sinto", "Sharp"};
 
-    cout << "Please Select A Street to View!" << endl;
+    cout << "Please Select A Street to View! (or type 'exit' to quit)" << endl;
     cout << "[Indiana] [Nora] [Augusta] [Mission] [Sinto] [Sharp]" << endl;
 
     while (!validChoice) {
         cin >> streetChoice;
 
+        // Allow the user to exit by typing 'exit'
+        if (streetChoice == "exit") {
+            streetName = "exit"; // Set special value to indicate exit
+            return;
+        }
+
+        // Check if the entered street name is valid
         for (const string& street : validStreets) {
             if (street == streetChoice) {
-                validChoice = true; 
+                validChoice = true;
                 break;
             }
         }
@@ -216,6 +185,37 @@ void navigateStreet(vector<streetList>& streetLinkedLists, string& streetName) {
     cout << "You have exited the street." << endl;
 }
 
+
+
+// Copy Assignment Operator
+streetList& streetList::operator=(const streetList& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    // Clear the existing list
+    Node* current = Head;
+    while (current != nullptr) {
+        Node* nextNode = current->next;
+        delete current;
+        current = nextNode;
+    }
+    Head = nullptr;
+    Tail = nullptr;
+
+    // Copy the streetName attribute
+    streetName = other.streetName;
+
+    // Copy the list
+    current = other.Head;
+    while (current != nullptr) {
+        Node* newNode = new Node(*current);
+        this->append(*newNode);
+        current = current->next;
+    }
+    
+    return *this;
+}
 
 streetList::streetList(const string& street) {
     Head = nullptr;

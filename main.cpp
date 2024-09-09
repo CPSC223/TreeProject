@@ -26,18 +26,37 @@ int main() {
     bool keepRunning = true;
     
     while (keepRunning) {
-        string response;
+        // Allow the user to select a street
         selectStreet(streetLinkedLists, streetName);
+
+        // Check if the user typed "exit" in selectStreet
+        if (streetName == "exit") {
+            keepRunning = false;
+            break;
+        }
+
+        // Navigate the selected street
         navigateStreet(streetLinkedLists, streetName);
 
-        cout << "Would you like to view another street? (yes/no)" << endl;
-        cin >> response;
+        // After navigation, ask the user if they want to switch streets or quit
+        string response;
+        bool validResponse = false;
+        
+        while (!validResponse) {
+            cout << "Would you like to view another street? (yes/no)" << endl;
+            cin >> response;
 
-        // Convert response to lowercase for case-insensitive comparison
-        transform(response.begin(), response.end(), response.begin(), ::tolower);
+            // Convert response to lowercase for case-insensitive comparison
+            transform(response.begin(), response.end(), response.begin(), ::tolower);
 
-        if (response != "yes") {
-            keepRunning = false;
+            if (response == "yes") {
+                validResponse = true;
+            } else if (response == "no") {
+                validResponse = true;
+                keepRunning = false; // Exit the loop if they say "no"
+            } else {
+                cout << "Please enter a valid option: 'yes' or 'no'." << endl;
+            }
         }
     }
 
