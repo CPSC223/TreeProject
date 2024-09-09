@@ -1,3 +1,12 @@
+/*
+Name: Group 13
+Class: CPSC223, Fall 2024
+Date: September 8, 2024
+Programming Assignment: Project 1
+Description: This is the header file that defines the linked list class and node struct
+as well as houses the signatures for standard functions
+*/
+
 #ifndef LINKED_LIST_HPP
 #define LINKED_LIST_HPP
 #endif
@@ -23,13 +32,28 @@ public:
     string streetName;
     Node* Head;
     Node* Tail;
+
     streetList(const string& name);
     ~streetList();
-    void append(Node* newNode);
+
+    streetList(const streetList& other)
+    : Head(nullptr), Tail(nullptr), streetName(other.streetName) {
+    Node* current = other.Head;
+    while (current != nullptr) {
+        Node* newNode = new Node(*current);
+        this->append(*newNode);
+        current = current->next;
+    }
+    }
+    streetList& operator=(const streetList& other);
+
+    void append(Node& newNode);
     void printList() const;
-    void insertNode(Node* newNode, int position);
+    void insertNode(Node& newNode, int position);
     void deleteNode(int blockNum);
     void printSize(Node* newNode);
+    int findSize() const;
+    void initializeFromLine(const string& line);
     Node* searchNode(int blockNum) const;
 };
 
