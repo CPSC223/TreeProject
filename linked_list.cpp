@@ -4,43 +4,84 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
+#include <cctype>
+#include <locale>
 
 using namespace std;
+
+std::string cleanInput(const std::string& input) {
+    std::string result;
+    for (char c : input) {
+        // Remove carriage returns and any other undesired characters
+        if (c != '\r') {
+            result += c;
+        }
+    }
+    return result;
+}
+
+std::string trim(const std::string& str) {
+    // Create a copy of the string to modify
+    std::string trimmed = str;
+
+    // Remove leading whitespace
+    trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+
+    // Remove trailing whitespace
+    trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), trimmed.end());
+
+    return trimmed;
+}
 
 void parseFile(const string& fileName, vector<streetList>& streetLinkedLists) {
     ifstream file(fileName);
     string line;
+
     if (!file.is_open()) {
-        cerr << "File " << fileName << " was unable to open" << endl;
+        cout << "File " << fileName << " was unable to open" << endl;
         return;
     }
-    while (getline(file, line))
-    {
-        istringstream dataToParse(line);
-        string treePerBlock, streetName;
-        if(line.empty()){
-            break;
+
+    while (getline(file, line)) {
+        line = cleanInput(line);  // Remove hidden characters like '\r'
+        cout << "File stream state after getline: " << file.good() << " Line: [" << line << "]" << endl;
+
+        if (line.empty()) {
+            continue;  // Skip empty lines
         }
+
+        cout << "Line length after clean: " << line.length() << " Content: [" << line << "]" << endl;
+
+        istringstream dataToParse(line);
+        string streetName, treePerBlock;
+
         getline(dataToParse, streetName, ',');
+        streetName = trim(streetName);  // Remove leading/trailing whitespace
+        cout << "Parsing street: [" << streetName << "]" << endl;
+
         streetList newStreetList(streetName);
         int blockNum = 1;
-        while(getline(dataToParse, treePerBlock, ','))
-        {
-            Node newNode;
-            newNode.blockNum = blockNum;
-            newNode.treeCount = treePerBlock;
-            newNode.last = nullptr;
-            newNode.next = nullptr;
 
-            newStreetList.append(newNode);
+        while (getline(dataToParse, treePerBlock, ',')) {
+            treePerBlock = trim(treePerBlock);
+            cout << "Block " << blockNum << " has " << treePerBlock << " trees." << endl;
+
+            Node* newNode = new Node(treePerBlock, blockNum);
+            newStreetList.append(newNode);  // Append the node
             blockNum++;
-
         }
-        streetLinkedLists.push_back(newStreetList);
 
+        streetLinkedLists.push_back(newStreetList);  // Add the streetList to the vector
+        cout << "Finished parsing street: " << streetName << endl;
     }
+
     file.close();
-    return;
+    cout << "Finished reading file" << endl;
 }
 
 
@@ -48,7 +89,6 @@ void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
     string streetChoice;
     bool validChoice = false;
 
-    // List of valid streets
     vector<string> validStreets = {"Indiana", "Nora", "Augusta", "Mission", "Sinto", "Sharp"};
 
     cout << "Please Select A Street to View!" << endl;
@@ -57,7 +97,7 @@ void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
     while (!validChoice) {
         cin >> streetChoice;
 
-        for (const string& street : validStreets) { //iterate through vector
+        for (const string& street : validStreets) {
             if (street == streetChoice) {
                 validChoice = true; 
                 break;
@@ -68,31 +108,20 @@ void selectStreet(vector<streetList>& streetLinkedLists, string& streetName) {
             cout << "Invalid street name. Please try again: " << endl;
         }
     }
+
     streetName = streetChoice;
 }
 
 void navigateStreet(vector<streetList>& streetLinkedLists, string& streetName) {
     for (int i = 0; i < streetLinkedLists.size(); i++) {
-        if (streetLinkedLists[i].streetName == streetName)
-        {
-            cout << "Street Found: " << streetName;
+        if (streetLinkedLists[i].streetName == streetName) {
+            cout << "Street Found: " << streetName << endl;
+            return;
         }
     }
-    cout << "oh no" << endl;
-    
+    cout << "Street not found!" << endl;
 }
 
-//LinkedList Functions
-
-
-void streetList::printList() const {
-    Node* currentNode = Head;
-    while (currentNode != nullptr)
-    {
-        cout << "Block " << currentNode->blockNum << " contains " << currentNode->treeCount << " trees!" << endl;
-        currentNode = currentNode ->next;
-    }
-}
 streetList::streetList(const string& street) {
     Head = nullptr;
     Tail = nullptr;
@@ -108,94 +137,91 @@ streetList::~streetList() {
     }
 }
 
-void streetList::append(Node& newNode) {
-    Node* newNodePtr = new Node(newNode);  
-
+void streetList::append(Node* newNode) {
     if (Head == nullptr) {
-        Head = Tail = newNodePtr;
+        cout << "List is empty, adding the first node (Block " << newNode->blockNum << ")" << endl;
+        Head = Tail = newNode;
     } else {
-        Tail->next = newNodePtr;
-        newNodePtr->last = Tail;
-        Tail = newNodePtr;
+        cout << "Appending node for Block " << newNode->blockNum << " after Block " << Tail->blockNum << endl;
+        Tail->next = newNode;  // Link current Tail to the new node
+        newNode->last = Tail;  // Set the new node's last pointer to the current Tail
+        Tail = newNode;        // Update the Tail to be the new node
     }
 }
 
-void streetList::deleteNode(int blockNum){
-    Node* currentNode = Head;
-    
+void streetList::printList() const {
+    Node* currentNode = Head; 
     while (currentNode != nullptr) {
-        if (currentNode->blockNum == blockNum) {  // Find the block with the specified name
-            if (currentNode == Head) {  // If the node to be deleted is the Head
+        cout << "Block " << currentNode->blockNum << " contains " << currentNode->treeCount << " trees!" << endl;
+        currentNode = currentNode->next; 
+    }
+}
+
+void streetList::insertNode(Node* newNode, int position) {
+    if (position == 0) {
+        newNode->next = Head;
+        if (Head != nullptr) {
+            Head->last = newNode;
+        }
+        Head = newNode;
+        if (Tail == nullptr) {
+            Tail = Head;
+        }
+        return;
+    }
+
+    Node* currentNode = Head;
+    int currentPosition = 0;
+
+    while (currentNode != nullptr && currentPosition < position - 1) {
+        currentNode = currentNode->next;
+        currentPosition++;
+    }
+
+    if (currentNode == nullptr) {
+        append(newNode);
+    } else {
+        newNode->next = currentNode->next;
+        newNode->last = currentNode;
+        if (currentNode->next != nullptr) {
+            currentNode->next->last = newNode;
+        } else {
+            Tail = newNode;
+        }
+        currentNode->next = newNode;
+    }
+}
+
+void streetList::deleteNode(int blockNum) {
+    Node* currentNode = Head;
+
+    while (currentNode != nullptr) {
+        if (currentNode->blockNum == blockNum) {
+            if (currentNode == Head) {
                 Head = currentNode->next;
                 if (Head != nullptr) {
-                    Head->last = nullptr; 
+                    Head->last = nullptr;
                 }
-
-            } else if (currentNode == Tail) {  
+            } else if (currentNode == Tail) {
                 Tail = currentNode->last;
                 if (Tail != nullptr) {
-                    Tail->next = nullptr;  
+                    Tail->next = nullptr;
                 }
-
-            } else { 
+            } else {
                 currentNode->last->next = currentNode->next;
                 currentNode->next->last = currentNode->last;
             }
             delete currentNode;
             return;
         }
-        currentNode = currentNode->next;  
+        currentNode = currentNode->next;
     }
-    
+
     cout << "Block " << blockNum << " not found" << endl;
 }
 
-void streetList::insertNode(Node& newNode, int position) {
-
-    Node* newNodePtr = new Node();
-    newNodePtr->blockNum = newNode.blockNum;
-    newNodePtr->treeCount = newNode.treeCount;
-    newNodePtr->next = nullptr;
-    newNodePtr->last = nullptr;
-
-    if (position == 0) {  
-        newNodePtr->next = Head;
-        if (Head != nullptr) {
-            Head->last = newNodePtr;
-        }
-        Head = newNodePtr;
-        if (Tail == nullptr) {  // If the list was empty, update the Tail
-            Tail = Head;
-        }
-        return;
-    }
-    
-    Node* currentNode = Head;
-    int currentPosition = 0;
-    
-    while (currentNode != nullptr && currentPosition < position - 1) {
-        currentNode = currentNode->next;
-        currentPosition++;
-    }
-    
-    if (currentNode == nullptr) {  // If position is out of bounds, append at the end
-        append(*newNodePtr);
-    } else { 
-        newNodePtr->next = currentNode->next;
-        newNodePtr->last = currentNode;
-        
-        if (currentNode->next != nullptr) {
-            currentNode->next->last = newNodePtr;
-        } else {  // If inserting at the end
-            Tail = newNodePtr;
-        }
-        
-        currentNode->next = newNodePtr;
-    }
-}
-
-void streetList::printSize(Node& newNode) {
-    cout << "Block " << newNode.blockNum << " has " << newNode.treeCount << " trees." << endl;
+void streetList::printSize(Node* newNode) {
+    cout << "Block " << newNode->blockNum << " has " << newNode->treeCount << " trees." << endl;
 }
 
 Node* streetList::searchNode(int blockNum) const {
@@ -205,7 +231,7 @@ Node* streetList::searchNode(int blockNum) const {
         if (current->blockNum == blockNum) {
             return current;
         }
-        current = current->next; 
+        current = current->next;
     }
 
     cout << "Node not found.\n";

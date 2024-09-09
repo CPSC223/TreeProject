@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 struct Node {
     string treeCount;
     int blockNum;
@@ -17,7 +16,6 @@ struct Node {
     Node() : treeCount(""), blockNum(0), last(nullptr), next(nullptr) {}
     Node(const string& count, int num, Node* prev = nullptr, Node* following = nullptr)
         : treeCount(count), blockNum(num), last(prev), next(following) {}
-
 };
 
 class streetList {
@@ -26,19 +24,16 @@ public:
     Node* Head;
     Node* Tail;
     streetList(const string& name);
-
     ~streetList();
-
-    streetList* CreateNewNode(string blockName, int treeCount);
-    void append(Node& newNode);
+    void append(Node* newNode);
     void printList() const;
-    void insertNode(Node& newNode, int position);
+    void insertNode(Node* newNode, int position);
     void deleteNode(int blockNum);
-    void printSize(Node& newNode);
+    void printSize(Node* newNode);
     Node* searchNode(int blockNum) const;
-
 };
 
 void parseFile(const string& fileName, vector<streetList>& streetLinkedLists);
 void selectStreet(vector<streetList>& streetLinkedLists, string& streetName);
 void navigateStreet(vector<streetList>& streetLinkedLists, string& streetName);
+
